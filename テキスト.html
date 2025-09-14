@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>アイコンリサイズツール</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+  <h1>アイコンリサイズツール</h1>
+  <input type="file" id="fileInput" accept="image/*">
+  <button id="makeZip">ZIPでダウンロード</button>
+
+  <script>
+    document.getElementById('makeZip').onclick = async () => {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) {
+        alert("画像を選択してください");
+        return;
+      }
+
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = async () => {
+        const sizes = [192, 512];
+        const zip = new JSZip();
+
+        for (let size of sizes) {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, size, size);
+
+          const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
+          zip.file(`icon-${size}.png`, blob);
+        }
+
+        const content = await zip.generateAsync({type:"blob"});
+        saveAs(content, "core-icons.zip");
+      };
+    };
+  </script>
+</body>
+</html>
