@@ -2,8 +2,8 @@ const CACHE_NAME = 'icon-resizer-v2';
 const ASSETS = [
   './',
   './index.html',
-  './jszip.min.js',
-  './filesaver.min.js',
+  './libs/jszip.min.js',
+  './libs/filesaver.min.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
