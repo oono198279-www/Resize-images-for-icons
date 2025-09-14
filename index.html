@@ -29,6 +29,14 @@
   .spin{width:18px;height:18px;border:2px solid #9ca3af;border-top-color:transparent;border-radius:50%;display:inline-block;animation:sp 1s linear infinite;vertical-align:-3px;margin-left:8px}
   @keyframes sp{to{transform:rotate(360deg)}}
 </style>
+<!-- head 内に追加 -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#22c55e">
+
+<!-- iOS PWA向け（任意だけど入れると吉） -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head>
 <body>
   <div class="wrap">
@@ -159,5 +167,16 @@
     altLinks.style.display = 'none'; altLinks.innerHTML='';
   });
   </script>
+  <!-- CDNを使っていたscriptはローカル版に置き換え -->
+<script src="./jszip.min.js"></script>
+<script src="./filesaver.min.js"></script>
+<!-- body の一番下あたりに登録コード -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
 </body>
 </html>
