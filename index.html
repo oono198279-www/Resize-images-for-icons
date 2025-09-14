@@ -1,45 +1,163 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>アイコンリサイズツール</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>アイコンリサイズツール</title>
+<style>
+  :root{--bg:#0b0f12;--card:#11161a;--fg:#e5e7eb;--muted:#9ca3af;--accent:#22c55e;--border:#1f2937;}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:680px;margin:0 auto;padding:16px}
+  h1{font-size:22px;margin:8px 0 12px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .hint{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6}
+  .drop{border:2px dashed #2b3947;border-radius:12px;padding:18px;text-align:center;background:#0f1419}
+  .drop input{display:none}
+  .drop .btn{display:inline-block;background:var(--accent);color:#063b1d;border:none;border-radius:12px;
+             padding:12px 16px;font-weight:700;font-size:16px;min-height:44px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .actions .act{flex:1;min-width:180px}
+  button.act{background:var(--accent);color:#063b1d;border:none;border-radius:12px;padding:12px 16px;
+             font-size:16px;font-weight:700;min-height:44px;width:100%}
+  button[disabled]{opacity:.5}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;align-items:center}
+  .preview{width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#0f1419}
+  .preview img{width:100%;height:100%;object-fit:cover}
+  .meta{color:var(--muted);font-size:13px}
+  .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  a.dl{display:inline-block;background:#1f2937;border:1px solid #334155;color:#e5e7eb;padding:10px 12px;border-radius:10px;font-size:14px}
+  .spin{width:18px;height:18px;border:2px solid #9ca3af;border-top-color:transparent;border-radius:50%;display:inline-block;animation:sp 1s linear infinite;vertical-align:-3px;margin-left:8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
-  <h1>アイコンリサイズツール</h1>
-  <input type="file" id="fileInput" accept="image/*">
-  <button id="makeZip">ZIPでダウンロード</button>
+  <div class="wrap">
+    <h1>アイコンリサイズツール</h1>
+    <div class="card">
+      <div class="drop" id="drop">
+        <input id="file" type="file" accept="image/*">
+        <button class="btn" id="pickBtn">画像を選択</button>
+        <div class="hint">192×192 と 512×512 の PNG を一括生成します。<br>PCはドラッグ＆ドロップでもOK。</div>
+      </div>
+
+      <div class="row" id="info" style="display:none">
+        <div class="preview"><img id="prev" alt=""></div>
+        <div class="meta" id="meta"></div>
+      </div>
+
+      <div class="actions">
+        <button class="act" id="zipBtn" disabled>ZIPでダウンロード<span id="busy" style="display:none" class="spin"></span></button>
+        <button class="act" id="clearBtn" disabled>クリア</button>
+      </div>
+
+      <div class="links" id="altLinks" style="display:none">
+        <!-- 個別ダウンロードの予備リンク（iOS対策）をここに出す -->
+      </div>
+
+      <p class="hint">※ iPhone でZIPが他アプリに送られる場合は、下の「個別PNGを保存」を使うか、Safariのダウンロードリストから共有メニューで「ファイルに保存」を選んでください。</p>
+    </div>
+  </div>
+
+  <!-- libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <script>
-    document.getElementById('makeZip').onclick = async () => {
-      const file = document.getElementById('fileInput').files[0];
-      if (!file) {
-        alert("画像を選択してください");
-        return;
-      }
+  const el = s => document.querySelector(s);
+  const fileInput = el('#file');
+  const pickBtn   = el('#pickBtn');
+  const zipBtn    = el('#zipBtn');
+  const clearBtn  = el('#clearBtn');
+  const prevImg   = el('#prev');
+  const metaEl    = el('#meta');
+  const infoBox   = el('#info');
+  const altLinks  = el('#altLinks');
+  const busyIcon  = el('#busy');
+  const dropZone  = el('#drop');
 
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.onload = async () => {
-        const sizes = [192, 512];
-        const zip = new JSZip();
+  pickBtn.addEventListener('click', ()=> fileInput.click());
+  dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.style.borderColor='#3b82f6'; });
+  dropZone.addEventListener('dragleave', ()=> dropZone.style.borderColor='#2b3947');
+  dropZone.addEventListener('drop', e=>{
+    e.preventDefault(); dropZone.style.borderColor='#2b3947';
+    if(e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', ()=> fileInput.files[0] && handleFile(fileInput.files[0]));
 
-        for (let size of sizes) {
-          const canvas = document.createElement('canvas');
-          canvas.width = size;
-          canvas.height = size;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, size, size);
+  let srcImage = null, srcName = 'icon';
 
-          const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
-          zip.file(`icon-${size}.png`, blob);
-        }
-
-        const content = await zip.generateAsync({type:"blob"});
-        saveAs(content, "core-icons.zip");
-      };
+  function handleFile(file){
+    srcName = (file.name || 'icon').replace(/\.[^.]+$/, '');
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      srcImage = img;
+      infoBox.style.display='flex';
+      prevImg.src = url;
+      metaEl.textContent = `${file.name} / ${img.naturalWidth}×${img.naturalHeight}px`;
+      zipBtn.disabled = false; clearBtn.disabled = false;
+      altLinks.style.display = 'none'; altLinks.innerHTML='';
     };
+    img.src = url;
+  }
+
+  function resizeToBlob(img, size){
+    return new Promise(res=>{
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      // 画像の短辺でトリミングして正方形化（中央トリム）
+      const sw = img.naturalWidth, sh = img.naturalHeight;
+      const s = Math.min(sw, sh);
+      const sx = (sw - s)/2, sy = (sh - s)/2;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+      canvas.toBlob(b=>res(b), 'image/png');
+    });
+  }
+
+  zipBtn.addEventListener('click', async ()=>{
+    if(!srcImage) return;
+    zipBtn.disabled = true; busyIcon.style.display='inline-block';
+
+    const sizes = [192, 512];
+    const zip = new JSZip();
+    const objectUrls = []; // iOS対策の個別リンク用
+
+    for(const s of sizes){
+      const blob = await resizeToBlob(srcImage, s);
+      zip.file(`icon-${s}.png`, blob);
+
+      // ついでに個別DLリンクも用意（iOSでZIPが扱いにくい場合の回避）
+      const url = URL.createObjectURL(blob);
+      objectUrls.push({s, url});
+    }
+
+    try{
+      const content = await zip.generateAsync({type:'blob'});
+      const zipName = `${srcName || 'core'}-icons.zip`;
+      saveAs(content, zipName);
+    } finally {
+      // 個別リンクを表示
+      altLinks.innerHTML = '';
+      for(const o of objectUrls){
+        const a = document.createElement('a');
+        a.href = o.url; a.download = `icon-${o.s}.png`; a.className='dl';
+        a.textContent = `icon-${o.s}.png を保存`;
+        altLinks.appendChild(a);
+      }
+      altLinks.style.display = 'flex';
+      busyIcon.style.display='none';
+      zipBtn.disabled = false;
+    }
+  });
+
+  clearBtn.addEventListener('click', ()=>{
+    srcImage = null; fileInput.value = '';
+    infoBox.style.display='none'; prevImg.removeAttribute('src'); metaEl.textContent='';
+    zipBtn.disabled = true; clearBtn.disabled = true;
+    altLinks.style.display = 'none'; altLinks.innerHTML='';
+  });
   </script>
 </body>
 </html>
