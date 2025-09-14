@@ -1,4 +1,4 @@
-const CACHE_NAME = 'icon-resizer-v3';
+const CACHE_NAME = 'icon-resizer-v4';
 const ASSETS = [
   './',
   './index.html',
