@@ -1,42 +1,42 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>アイコンリサイズツール</title>
-<style>
-  :root{--bg:#0b0f12;--card:#11161a;--fg:#e5e7eb;--muted:#9ca3af;--accent:#22c55e;--border:#1f2937;}
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial}
-  .wrap{max-width:680px;margin:0 auto;padding:16px}
-  h1{font-size:22px;margin:8px 0 12px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
-  .hint{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6}
-  .drop{border:2px dashed #2b3947;border-radius:12px;padding:18px;text-align:center;background:#0f1419}
-  .drop input{display:none}
-  .drop .btn{display:inline-block;background:var(--accent);color:#063b1d;border:none;border-radius:12px;
-             padding:12px 16px;font-weight:700;font-size:16px;min-height:44px}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  .actions .act{flex:1;min-width:180px}
-  button.act{background:var(--accent);color:#063b1d;border:none;border-radius:12px;padding:12px 16px;
-             font-size:16px;font-weight:700;min-height:44px;width:100%}
-  button[disabled]{opacity:.5}
-  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;align-items:center}
-  .preview{width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#0f1419}
-  .preview img{width:100%;height:100%;object-fit:cover}
-  .meta{color:var(--muted);font-size:13px}
-  .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  a.dl{display:inline-block;background:#1f2937;border:1px solid #334155;color:#e5e7eb;padding:10px 12px;border-radius:10px;font-size:14px}
-  .spin{width:18px;height:18px;border:2px solid #9ca3af;border-top-color:transparent;border-radius:50%;display:inline-block;animation:sp 1s linear infinite;vertical-align:-3px;margin-left:8px}
-  @keyframes sp{to{transform:rotate(360deg)}}
-</style>
-<!-- head 内に追加 -->
-<link rel="manifest" href="./manifest.webmanifest">
-<meta name="theme-color" content="#22c55e">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>アイコンリサイズツール</title>
 
-<!-- iOS PWA向け（任意だけど入れると吉） -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="./icon-192.png">
+  <style>
+    :root{--bg:#0b0f12;--card:#11161a;--fg:#e5e7eb;--muted:#9ca3af;--accent:#22c55e;--border:#1f2937;}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:680px;margin:0 auto;padding:16px}
+    h1{font-size:22px;margin:8px 0 12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .hint{color:var(--muted);font-size:13px;margin-top:8px;line-height:1.6}
+    .drop{border:2px dashed #2b3947;border-radius:12px;padding:18px;text-align:center;background:#0f1419}
+    .drop input{display:none}
+    .drop .btn{display:inline-block;background:var(--accent);color:#063b1d;border:none;border-radius:12px;
+               padding:12px 16px;font-weight:700;font-size:16px;min-height:44px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .actions .act{flex:1;min-width:180px}
+    button.act{background:var(--accent);color:#063b1d;border:none;border-radius:12px;padding:12px 16px;
+               font-size:16px;font-weight:700;min-height:44px;width:100%}
+    button[disabled]{opacity:.5}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;align-items:center}
+    .preview{width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#0f1419}
+    .preview img{width:100%;height:100%;object-fit:cover}
+    .meta{color:var(--muted);font-size:13px}
+    .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    a.dl{display:inline-block;background:#1f2937;border:1px solid #334155;color:#e5e7eb;padding:10px 12px;border-radius:10px;font-size:14px}
+    .spin{width:18px;height:18px;border:2px solid #9ca3af;border-top-color:transparent;border-radius:50%;display:inline-block;animation:sp 1s linear infinite;vertical-align:-3px;margin-left:8px}
+    @keyframes sp{to{transform:rotate(360deg)}}
+  </style>
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#22c55e">
+  <!-- iOSは apple-touch-icon を参照（180推奨）。なければ後で生成した icon-180.png を置けばOK -->
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
 </head>
 <body>
   <div class="wrap">
@@ -45,7 +45,7 @@
       <div class="drop" id="drop">
         <input id="file" type="file" accept="image/*">
         <button class="btn" id="pickBtn">画像を選択</button>
-        <div class="hint">192×192 と 512×512 の PNG を一括生成します。<br>PCはドラッグ＆ドロップでもOK。</div>
+        <div class="hint">180（iPhone用）/ 192 / 512 の PNG を一括生成します。<br>PCはドラッグ＆ドロップでもOK。</div>
       </div>
 
       <div class="row" id="info" style="display:none">
@@ -54,18 +54,21 @@
       </div>
 
       <div class="actions">
-        <button class="act" id="zipBtn" disabled>ZIPでダウンロード<span id="busy" style="display:none" class="spin"></span></button>
+        <button class="act" id="zipBtn" disabled>ZIPでダウンロード <span id="busy" style="display:none" class="spin"></span></button>
         <button class="act" id="clearBtn" disabled>クリア</button>
       </div>
 
-      <div class="links" id="altLinks" style="display:none">
-        <!-- 個別ダウンロードの予備リンク（iOS対策）をここに出す -->
-      </div>
+      <div class="links" id="altLinks" style="display:none"></div>
 
-      <p class="hint">※ iPhone でZIPが他アプリに送られる場合は、下の「個別PNGを保存」を使うか、Safariのダウンロードリストから共有メニューで「ファイルに保存」を選んでください。</p>
+      <p class="hint">※ iPhoneでZIPが扱いにくい場合は、下の「個別PNGを保存」を使うか、Safariのダウンロードリストから共有→「ファイルに保存」を選んでください。</p>
     </div>
   </div>
 
+  <!-- ライブラリ（ローカルに配置したもの） -->
+  <script src="./libs/jszip.min.js"></script>
+  <script src="./libs/filesaver.min.js"></script>
+
+  <!-- アプリ本体 -->
   <script>
   const el = s => document.querySelector(s);
   const fileInput = el('#file');
@@ -110,9 +113,9 @@
       const canvas = document.createElement('canvas');
       canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
-      // 画像の短辺でトリミングして正方形化（中央トリム）
+      // 画像の短辺に合わせて中央トリム → 正方形化 → リサイズ
       const sw = img.naturalWidth, sh = img.naturalHeight;
-      const s = Math.min(sw, sh);
+      const s  = Math.min(sw, sh);
       const sx = (sw - s)/2, sy = (sh - s)/2;
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
@@ -120,37 +123,50 @@
     });
   }
 
+  async function makeFiles(){
+    const sizes = [180, 192, 512];            // ★ 180 を追加
+    const files = [];
+    for (const s of sizes) {
+      const blob = await resizeToBlob(srcImage, s);
+      files.push({ name: `icon-${s}.png`, size: s, blob, url: URL.createObjectURL(blob) });
+    }
+    return files;
+  }
+
+  function renderLinks(files){
+    altLinks.innerHTML = '';
+    for (const f of files){
+      const a = document.createElement('a');
+      a.href = f.url; a.download = f.name; a.className='dl';
+      a.textContent = `${f.name} を保存`;
+      altLinks.appendChild(a);
+    }
+    altLinks.style.display = 'flex';
+  }
+
   zipBtn.addEventListener('click', async ()=>{
     if(!srcImage) return;
     zipBtn.disabled = true; busyIcon.style.display='inline-block';
+    try {
+      const files = await makeFiles();
 
-    const sizes = [192, 512];
-    const zip = new JSZip();
-    const objectUrls = []; // iOS対策の個別リンク用
-
-    for(const s of sizes){
-      const blob = await resizeToBlob(srcImage, s);
-      zip.file(`icon-${s}.png`, blob);
-
-      // ついでに個別DLリンクも用意（iOSでZIPが扱いにくい場合の回避）
-      const url = URL.createObjectURL(blob);
-      objectUrls.push({s, url});
-    }
-
-    try{
-      const content = await zip.generateAsync({type:'blob'});
-      const zipName = `${srcName || 'core'}-icons.zip`;
-      saveAs(content, zipName);
-    } finally {
-      // 個別リンクを表示
-      altLinks.innerHTML = '';
-      for(const o of objectUrls){
-        const a = document.createElement('a');
-        a.href = o.url; a.download = `icon-${o.s}.png`; a.className='dl';
-        a.textContent = `icon-${o.s}.png を保存`;
-        altLinks.appendChild(a);
+      if (typeof JSZip === 'undefined' || typeof saveAs === 'undefined') {
+        alert('ZIP用ライブラリが読み込めていません（個別PNGリンクを表示します）');
+        renderLinks(files);
+        return;
       }
-      altLinks.style.display = 'flex';
+
+      const zip = new JSZip();
+      files.forEach(f => zip.file(f.name, f.blob));
+      const content = await zip.generateAsync({type:'blob'});
+      saveAs(content, `${srcName || 'core'}-icons.zip`);
+
+      // 任意：個別リンクも併せて出す（iOS救済）
+      renderLinks(files);
+    } catch(e){
+      console.error(e);
+      alert('ZIP作成中にエラーが発生しました。');
+    } finally {
       busyIcon.style.display='none';
       zipBtn.disabled = false;
     }
@@ -163,16 +179,14 @@
     altLinks.style.display = 'none'; altLinks.innerHTML='';
   });
   </script>
-  <!-- CDNを使っていたscriptはローカル版に置き換え -->
-<script src="./libs/jszip.min.js"></script>
-<script src="./libs/filesaver.min.js"></script>
-<!-- body の一番下あたりに登録コード -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js');
-  });
-}
-</script>
+
+  <!-- Service Worker 登録（そのままでOK） -->
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+  </script>
 </body>
 </html>
